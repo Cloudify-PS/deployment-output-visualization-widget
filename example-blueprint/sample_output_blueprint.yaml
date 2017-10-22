@@ -1,0 +1,78 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/4.1.1/types.yaml
+
+
+node_templates:
+
+ openstack:
+   type: cloudify.nodes.ApplicationModule
+
+
+outputs:
+
+  visual_outputs:
+    description: Sample Deployment Output wiget title
+    value:
+      - type: gauge
+        name: CPU
+        description: "cpu usage"
+        min: 0
+        max: 100
+        value: 50
+
+      - type: piechart
+        name: load
+        description: "load"
+        data: [
+          { name: 'Started', color: '#21ba45', value: 2 },
+          { name: 'In progress', color: '#fbbd08', value: 5 },
+          { name: 'Warning', color: '#f2711c', value: 3 },
+          { name: 'Error', color: '#db2828', value: 8 }
+        ]
+
+      - type: linechart
+        name: RAM
+        description: "cpu usage"
+        charts: [
+          { name: 'value', label: 'CPU load'}
+        ]
+        data: [
+          {time: '17:30', value: 1},
+          {time: '17:40', value: 2},
+          {time: '17:50', value: 1},
+          {time: '18:00', value: 3},
+          {time: '18:10', value: 5},
+          {time: '18:20', value: 8},
+          {time: '18:30', value: 5}
+        ]
+
+      - type: barchart
+        name: RAM1
+        description: "ram 2"
+        charts: [
+          {name: 'value', label: 'CPU load'}
+        ]
+        data: [
+          {time: '17:30', value: 1},
+          {time: '17:40', value: 2},
+          {time: '17:50', value: 1},
+          {time: '18:00', value: 3},
+          {time: '18:10', value: 5},
+          {time: '18:20', value: 8},
+          {time: '18:30', value: 5}
+        ]
+
+      - type: display
+        name: RAM2
+        description: "ram 2"
+        value: hello world
+
+      - type: workflow-button
+        name: Refresh
+        workflow: install
+
+      - type: workflow-button
+        name: Another Workflow
+        workflow: update
