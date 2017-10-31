@@ -68,11 +68,23 @@ outputs:
         name: RAM2
         description: "ram 2"
         value: hello world
+  
+      - type: iframe
+        name: IFrame Test
+        description: "Hello IFrame"
+        value: http://cloudify.co/
 
-      - type: workflow-button
+      - type: workflow-select
         name: Refresh
         workflow: install
 
-      - type: workflow-button
-        name: Another Workflow
+      - type: workflow-select
+        name: Some Other Workflow
         workflow: update
+
+      - type: workflow-select
+        name: Just Call Update
+        workflow: update
+
+      - type: workflow-button
+        name: Execute Me

@@ -17,7 +17,8 @@ export default class PluginsCatalogList extends React.Component {
     this.state = {
       showModal: false,
       deployment: {},
-      workflow: {}
+      workflow: {},
+      selectedAction: null
     };
   }
 
@@ -49,11 +50,6 @@ export default class PluginsCatalogList extends React.Component {
   /**
    * Upload Click Event
    */
-  onUpload(plugin) {
-    this.setState({ plugin: plugin });
-    this.showModal();
-  }
-
   runExecution(name, deployment) {
     let workflow = _.find(deployment.workflows, { name });
     if (!workflow) {
@@ -74,21 +70,39 @@ export default class PluginsCatalogList extends React.Component {
   |--------------------------------------------------------------------------
   */
   render() {
-    const {Button} = Stage.Basic;
+    const {Button, Dropdown} = Stage.Basic;
     const {ExecuteDeploymentModal} = Stage.Common;
     const {Gauge, PieGraph, Graph} = Stage.Basic.Graphs;
     const deployment = this.props.deployment;
     const {visual_outputs} = deployment.outputs;
-    const buttons = visual_outputs.value.filter(e => e.type === 'workflow-button');
-    const charts = visual_outputs.value.filter(e => ['gauge', 'piechart', 'linechart', 'barchart', 'display'].includes(e.type));
+    const button = visual_outputs.value.filter(e => e.type === 'workflow-button');
+    const charts = visual_outputs.value.filter(e => ['gauge', 'piechart', 'linechart', 'barchart', 'display', 'iframe'].includes(e.type));
+    const selectOptions = visual_outputs.value.filter(e => e.type === 'workflow-select')
+      .map((item, idx) => Object({text: item.name, value: idx, 'data-workflow': item.workflow}));
+    
+    /**
+     * workflow Select
+     */
+    const workflow_select = <Dropdown
+      placeholder='Choose Action'
+      selection
+      options={selectOptions}
+      closeOnChange
+      value={this.state.selectedAction}
+      onChange={(proxy, field) => {
+        let selectedWorkflow = selectOptions[field.value]['data-workflow'];
+        this.setState({selectedAction: field.value, selectedWorkflow});
+      }}
+      />;
 
     /**
-     * workflow buttons
+     * workflow button
      */
-    const workflows = buttons.map((current, idx) => <Button
+    const workflow_button = button.map((current, idx) => <Button
       key={idx}
       primary
-      onClick={this.runExecution.bind(this, current.workflow, deployment)}
+      onClick={this.runExecution.bind(this, this.state.selectedWorkflow, deployment)}
+      disabled={this.state.selectedAction === null}
       >{current.name}</Button>);
       
     /**
@@ -102,6 +116,7 @@ export default class PluginsCatalogList extends React.Component {
         {item.type === 'linechart' && <Graph charts={item.charts} data={item.data} type={Graph.LINE_CHART_TYPE} />}
         {item.type === 'barchart' && <Graph charts={item.charts} data={item.data} type={Graph.BAR_CHART_TYPE} />}
         {item.type === 'display' && <div style={{ fontSize: '60px', padding: '50px' }}>{item.value}</div>}
+        {item.type === 'iframe' && <iframe style={{height: '100%', width: '100%', border: '0px'}} src={item.value}></iframe>}
       </div>
     </div>);
 
@@ -110,7 +125,9 @@ export default class PluginsCatalogList extends React.Component {
       {visual_outputs.description}
       <br />
       <br />
-      {workflows}
+      {workflow_select}
+      &nbsp;&nbsp;
+      {workflow_button}
 
       <div className='deployment-output'>{visuals}</div>
 
