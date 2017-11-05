@@ -4,6 +4,16 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/4.1.1/types.yaml
 
 
+inputs:
+  cpumax:
+    type: string
+    default: 30
+
+  cputotal:
+    type: string
+    default: 130
+
+
 node_templates:
 
  openstack:
@@ -19,8 +29,8 @@ outputs:
         name: CPU
         description: "cpu usage"
         min: 0
-        max: 100
-        value: 50
+        max: { get_input: cpumax }
+        value: { get_input: cputotal }
 
       - type: piechart
         name: load
