@@ -26,7 +26,11 @@ export default class Actions {
    * @access public
    */
   doGetDeployment() {
-    return this.toolbox.getManager().doGet(`/deployments/${this.deploymentId}`); // ?_include=outputs,workflows,id
+    return this.toolbox.getManager().doGet(`/deployments/${this.deploymentId}`);
+  }
+
+  doGetOutputs() {
+    return this.toolbox.getManager().doGet(`/deployments/${this.deploymentId}/outputs`);
   }
 
 

@@ -25,7 +25,10 @@ Stage.defineWidget({
           ...widget.configuration,
         });
         
-        return actions.doGetDeployment ();
+        return Promise.all([
+          actions.doGetDeployment (),
+          actions.doGetOutputs()
+        ]);
     },
 
     render: function (widget, data, error, toolbox) {
@@ -45,7 +48,8 @@ Stage.defineWidget({
         return (
           <List
             widget={widget}
-            deployment={data}
+            deployment={data[0]}
+            outputs={data[1]}
             toolbox={toolbox}
             actions={actions}
           />

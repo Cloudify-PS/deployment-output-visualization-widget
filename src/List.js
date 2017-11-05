@@ -74,10 +74,12 @@ export default class PluginsCatalogList extends React.Component {
     const {ExecuteDeploymentModal} = Stage.Common;
     const {Gauge, PieGraph, Graph} = Stage.Basic.Graphs;
     const deployment = this.props.deployment;
-    const {visual_outputs} = deployment.outputs;
-    const button = visual_outputs.value.filter(e => e.type === 'workflow-button');
-    const charts = visual_outputs.value.filter(e => ['gauge', 'piechart', 'linechart', 'barchart', 'display', 'iframe'].includes(e.type));
-    const selectOptions = visual_outputs.value.filter(e => e.type === 'workflow-select')
+    const outputs = this.props.outputs;
+    const {visual_outputs} = outputs.outputs;
+    console.log('the outputs is ', visual_outputs)
+    const button = visual_outputs.filter(e => e.type === 'workflow-button');
+    const charts = visual_outputs.filter(e => ['gauge', 'piechart', 'linechart', 'barchart', 'display', 'iframe'].includes(e.type));
+    const selectOptions = visual_outputs.filter(e => e.type === 'workflow-select')
       .map((item, idx) => Object({text: item.name, value: idx, 'data-workflow': item.workflow}));
     
     /**
