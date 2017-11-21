@@ -21,10 +21,11 @@ Stage.defineWidget({
   initialConfiguration: [
     Stage.GenericConfig.POLLING_TIME_CONFIG(15),
     { id: 'outputKey', name: 'Output Key', default: 'visual_outputs', type: Stage.Basic.GenericField.STRING },
+    { id: 'default', name: 'Default Deployment if no page context, default blank', default: '', type: Stage.Basic.GenericField.STRING },
   ],
 
   fetchData(widget, toolbox, params) {
-    let deploymentId = toolbox.getContext().getValue('deploymentId');
+    let deploymentId = toolbox.getContext().getValue('deploymentId') || widget.configuration.default;
     let actions = new Actions(Object.assign({ toolbox }, widget.configuration, { deploymentId }));
 
     return Promise.all([
@@ -44,7 +45,7 @@ Stage.defineWidget({
     let formattedData = Object.assign({}, {
       deployment: data[0],
       outputs: data[1],
-      deploymentId: toolbox.getContext().getValue('deploymentId')
+      deploymentId: toolbox.getContext().getValue('deploymentId') || widget.configuration.default
     });
 
     return (
