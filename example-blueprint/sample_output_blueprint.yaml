@@ -77,7 +77,8 @@ outputs:
       - type: display
         name: RAM2
         description: "ram 2"
-        value: hello world
+        value: go To Cloudify
+        link: http://cloudify.co/
   
       - type: iframe
         name: IFrame Test

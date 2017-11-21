@@ -26,10 +26,16 @@ export default class Actions {
    * @access public
    */
   doGetDeployment() {
+    if(!this.deploymentId){
+      return Promise.resolve({});
+    }
     return this.toolbox.getManager().doGet(`/deployments/${this.deploymentId}`);
   }
 
   doGetOutputs() {
+    if(!this.deploymentId){
+      return Promise.resolve({});
+    }
     return this.toolbox.getManager().doGet(`/deployments/${this.deploymentId}/outputs`);
   }
 

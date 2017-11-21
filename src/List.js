@@ -22,19 +22,20 @@ export default class PluginsCatalogList extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.data.deploymentId !== prevProps.data.deploymentId) {
+      this._refreshData();
+    }
+  }
+  _refreshData() {
+    this.props.toolbox.refresh();
+  }
+
   /*
   |--------------------------------------------------------------------------
   | Custom Events
   |--------------------------------------------------------------------------
   */
-  /**
-   * onSuccess Event
-   * 
-   * @param {any} msg 
-   */
-  onSuccess(msg) {
-    this.setState({ success: msg });
-  }
 
   /**
    * Modal Events
@@ -64,6 +65,10 @@ export default class PluginsCatalogList extends React.Component {
     })
   }
 
+  _errorMessage(msg){
+    const {Message} = Stage.Basic;
+    return <Message positive><Message.Header>{msg}</Message.Header></Message>
+  }
   /*
   |--------------------------------------------------------------------------
   | React Renderer
@@ -71,17 +76,27 @@ export default class PluginsCatalogList extends React.Component {
   */
   render() {
     const {Button, Dropdown} = Stage.Basic;
+    const {deployment, outputs, deploymentId} = this.props.data;
     const {ExecuteDeploymentModal} = Stage.Common;
     const {Gauge, PieGraph, Graph} = Stage.Basic.Graphs;
-    const deployment = this.props.deployment;
-    const outputs = this.props.outputs;
-    const {visual_outputs} = outputs.outputs;
-    console.log('the outputs is ', visual_outputs)
+    const outputKey = this.props.widget.configuration.outputKey;
+    const visual_outputs = _.get(outputs, 'outputs.' + outputKey);
+
+    // check for errors
+    if (_.isEmpty(deployment) || _.isEmpty(outputs)) {
+      return this._errorMessage('Please Select Deployment.');
+    }
+
+    if (_.isEmpty(visual_outputs)) {
+      return this._errorMessage(`Please Set Output Key (${outputKey}) not exists on deployment (${deploymentId}).`);
+    }
+
+    // start extracting data
     const button = visual_outputs.filter(e => e.type === 'workflow-button');
     const charts = visual_outputs.filter(e => ['gauge', 'piechart', 'linechart', 'barchart', 'display', 'iframe'].includes(e.type));
     const selectOptions = visual_outputs.filter(e => e.type === 'workflow-select')
-      .map((item, idx) => Object({text: item.name, value: idx, 'data-workflow': item.workflow}));
-    
+      .map((item, idx) => Object({ text: item.name, value: idx, 'data-workflow': item.workflow }));
+
     /**
      * workflow Select
      */
@@ -93,8 +108,8 @@ export default class PluginsCatalogList extends React.Component {
       value={this.state.selectedAction}
       onChange={(proxy, field) => {
         let selectedWorkflow = selectOptions[field.value]['data-workflow'];
-        this.setState({selectedAction: field.value, selectedWorkflow});
-      }}
+        this.setState({ selectedAction: field.value, selectedWorkflow });
+      } }
       />;
 
     /**
@@ -106,7 +121,7 @@ export default class PluginsCatalogList extends React.Component {
       onClick={this.runExecution.bind(this, this.state.selectedWorkflow, deployment)}
       disabled={this.state.selectedAction === null}
       >{current.name}</Button>);
-      
+
     /**
      * charts visual output
      */
@@ -117,15 +132,16 @@ export default class PluginsCatalogList extends React.Component {
         {item.type === 'piechart' && <PieGraph widget={this.props.widget} data={item.data} toolbox={this.props.toolbox} />}
         {item.type === 'linechart' && <Graph charts={item.charts} data={item.data} type={Graph.LINE_CHART_TYPE} />}
         {item.type === 'barchart' && <Graph charts={item.charts} data={item.data} type={Graph.BAR_CHART_TYPE} />}
-        {item.type === 'display' && <div style={{ fontSize: '60px', padding: '50px' }}>{item.value}</div>}
-        {item.type === 'iframe' && <iframe style={{height: '100%', width: '100%', border: '0px'}} src={item.value}></iframe>}
+        {item.type === 'display' && <div style={{ fontSize: '52px', padding: '50px', 'lineHeight': '52px' }}>
+          {item.link ? <a href={item.link} target="blank">{item.value}</a> : item.value}
+        </div>}
+        {item.type === 'iframe' && <iframe style={{ height: '100%', width: '100%', border: '0px' }} src={item.value}></iframe>}
       </div>
     </div>);
 
 
     return <div>
       {visual_outputs.description}
-      <br />
       <br />
       {workflow_select}
       &nbsp;&nbsp;
