@@ -18,8 +18,20 @@ export default class PluginsCatalogList extends React.Component {
       showModal: false,
       deployment: {},
       workflow: {},
-      selectedAction: null
+      selectedAction: null,
+      development: null
     };
+  }
+
+  componentDidMount(){
+    this.props.toolbox.getEventBus().on('devmode:render', (res, yaml2json) => {
+      if(res.widgetId === this.props.widget.id){
+        let development = yaml2json(res.data);
+        this.setState({development});
+      }
+    }, this);
+    let data = 'you can start parse your output in YAML to display it in the output visualization';
+    this.props.toolbox.getEventBus().trigger('devmode:update', data, this.props.widget);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -80,10 +92,10 @@ export default class PluginsCatalogList extends React.Component {
     const {ExecuteDeploymentModal} = Stage.Common;
     const {Gauge, PieGraph, Graph} = Stage.Basic.Graphs;
     const outputKey = this.props.widget.configuration.outputKey;
-    const visual_outputs = _.get(outputs, 'outputs.' + outputKey);
+    const visual_outputs = this.state.development || _.get(outputs, 'outputs.' + outputKey);
 
     // check for errors
-    if (_.isEmpty(deployment) || _.isEmpty(outputs)) {
+    if ((_.isEmpty(deployment) || _.isEmpty(outputs)) && !this.state.development) {
       return this._errorMessage('Please Select Deployment.');
     }
 
